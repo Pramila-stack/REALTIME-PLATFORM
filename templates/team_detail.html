@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <h1>{{ team.name }}</h1>
+
+    <p>
+        <strong>Owner:</strong>
+        {{ team.owner.username }}
+
+    </p>
+
+    <p>
+        <strong>Created at:</strong>
+        {{ team.created_at }}
+    </p>
+
+    <hr>
+
+    <h2>Team Members</h2>
+
+    <ul>
+        {% for member in team.members.all %}
+        <li>
+            {{ member.user.username }}
+            {{ member.role }}
+        </li>
+        {% empty %}
+        <p>No members found.</p>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    <h2>Boards</h2>
+
+    <a href="{% url 'board-create' team.id %}">
+        + Create Board
+    </a>
+
+    <ul>
+        {% if team.boards.all %}
+        {% for board in team.boards.all %}
+        <li>
+            {{ board.name }}
+        </li>
+        <a href="{% url 'board-detail' board.pk %}">View Boards</a>
+        {% empty %}
+        <li>No boards available.</li>
+        {% endfor %}
+        {% endif %}
+    </ul>
+
+    <hr>
+
+    <a href="{% url 'team-list' %}">
+        ← Back to Teams
+    </a>
+
+</div>
+
+{% endblock content %}

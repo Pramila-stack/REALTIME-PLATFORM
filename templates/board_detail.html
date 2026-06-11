@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>
+    {{ board.name }} ({{ board.team.name }})
+</h2>
+
+<div style="display: flex; gap: 20px; align-items: flex-start; overflow-x: auto;">
+
+    {% for column in board.columns.all %}
+
+        <div class="kanban-column">
+
+            <h3>{{ column.name }}</h3>
+
+            <div class="task-list">
+
+                {% for task in column.tasks.all %}
+
+                    <div class="task-card">
+
+                        <h4>{{ task.title }}</h4>
+
+                        <p>{{ task.description }}</p>
+
+                        <div>
+                            👤 {{ task.assigned_to.username|default:"Unassigned" }}
+                        </div>
+
+                    </div>
+
+                {% empty %}
+                    <p>No tasks</p>
+                {% endfor %}
+
+            </div>
+
+            <div class="add-task-container">
+
+                <button onclick="toggleTaskForm('{{ column.id }}')">
+                    + Add a card
+                </button>
+
+                <div id="form-container-{{ column.id }}" style="display:none;">
+
+                    <form action="{% url 'task-create' column.id %}" method="POST">
+                        {% csrf_token %}
+
+                        <input type="text" name="title" placeholder="Title" required>
+
+                        <textarea name="description" placeholder="Description"></textarea>
+
+                        <select name="assigned_to">
+                            <option value="">Unassigned</option>
+
+                            {% for member in board.team.members.all %}
+                                <option value="{{ member.user.id }}">
+                                    {{ member.user.username }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="submit">Add</button>
+                        <button type="button" onclick="toggleTaskForm('{{ column.id }}')">Cancel</button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+        <p>This board has no columns yet.</p>
+    {% endfor %}
+
+</div>
+
+<script>
+function toggleTaskForm(id) {
+    const el = document.getElementById("form-container-" + id);
+    if (el.style.display === "none" || el.style.display === "") {
+        el.style.display = "block";
+    } else {
+        el.style.display = "none";
+    }
+}
+</script>
+
+{% endblock %}
